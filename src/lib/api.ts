@@ -41,11 +41,22 @@ export async function fetchDramaDetail(bookId: string): Promise<DetailData | nul
             );
             const chaptersData = await chaptersResponse.json();
 
+            // Handle different response formats
+            // API might return array directly or object with list property
+            let chaptersList = [];
+            if (Array.isArray(chaptersData)) {
+                chaptersList = chaptersData;
+            } else if (chaptersData.list && Array.isArray(chaptersData.list)) {
+                chaptersList = chaptersData.list;
+            } else if (chaptersData.data && Array.isArray(chaptersData.data)) {
+                chaptersList = chaptersData.data;
+            }
+
             return {
                 bookName: result.data.bookName || '',
                 coverWap: result.data.coverWap || '',
                 introduction: result.data.introduction || '',
-                list: chaptersData.list || chaptersData || [],
+                list: chaptersList,
                 ratingConf: result.data.ratingConf || {
                     showRate: false,
                     rate: '0',
